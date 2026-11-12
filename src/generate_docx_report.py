@@ -1,4 +1,4 @@
-"""Script to generate IEEE-style research paper in .docx format using python-docx."""
+"""Script to generate the humanized IEEE-style research paper in .docx format using python-docx."""
 
 from pathlib import Path
 
@@ -16,7 +16,7 @@ def set_cell_background(cell, fill_hex):
     tcPr.append(shd)
 
 
-def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
+def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = parse_xml(
         f'<w:tcMar {nsdecls("w")}><w:top w:w="{top}" w:type="dxa"/><w:bottom w:w="{bottom}" w:type="dxa"/><w:left w:w="{left}" w:type="dxa"/><w:right w:w="{right}" w:type="dxa"/></w:tcMar>'
@@ -26,7 +26,7 @@ def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
 
 def add_heading_1(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(14)
+    p.paragraph_format.space_before = Pt(12)
     p.paragraph_format.space_after = Pt(4)
     run = p.add_run(text)
     run.font.name = "Times New Roman"
@@ -38,7 +38,7 @@ def add_heading_1(doc, text):
 
 def add_heading_2(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(10)
+    p.paragraph_format.space_before = Pt(9)
     p.paragraph_format.space_after = Pt(2)
     run = p.add_run(text)
     run.font.name = "Times New Roman"
@@ -60,6 +60,32 @@ def add_body_p(doc, text):
     return p
 
 
+def add_styled_table(doc, data, caption_text, highlight_last=False):
+    t = doc.add_table(rows=len(data), cols=len(data[0]))
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for r_idx, row in enumerate(data):
+        for c_idx, val in enumerate(row):
+            cell = t.cell(r_idx, c_idx)
+            cell.paragraphs[0].text = val
+            cell.paragraphs[0].runs[0].font.name = "Times New Roman"
+            cell.paragraphs[0].runs[0].font.size = Pt(8.5)
+            set_cell_margins(cell)
+            if r_idx == 0:
+                cell.paragraphs[0].runs[0].font.bold = True
+                set_cell_background(cell, "EEEEEE")
+            elif highlight_last and r_idx == len(data) - 1:
+                cell.paragraphs[0].runs[0].font.bold = True
+                set_cell_background(cell, "E8F4F8")
+    p_cap = doc.add_paragraph()
+    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_cap.paragraph_format.space_before = Pt(3)
+    p_cap.paragraph_format.space_after = Pt(6)
+    r_cap = p_cap.add_run(caption_text)
+    r_cap.font.name = "Times New Roman"
+    r_cap.font.size = Pt(8.5)
+    r_cap.font.italic = True
+
+
 def main():
     doc = docx.Document()
 
@@ -74,16 +100,21 @@ def main():
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_after = Pt(8)
-    run_title = p_title.add_run("WeatherPipe: An Automated, Causal Preprocessing and Feature Engineering Pipeline for Robust Meteorological Time-Series Forecasting")
+    run_title = p_title.add_run(
+        "Automating Weather Data Preprocessing and Feature Engineering in a CI/CD Pipeline for Short-Term Temperature Forecasting"
+    )
     run_title.font.name = "Times New Roman"
-    run_title.font.size = Pt(16)
+    run_title.font.size = Pt(15.5)
     run_title.font.bold = True
 
     # Subtitle / Course Note
     p_sub = doc.add_paragraph()
     p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_sub.paragraph_format.space_after = Pt(12)
-    r_sub = p_sub.add_run("Course Project for Data Science Tools and Techniques (DSTT) | Fall 2026\nGitHub Implementation Repository: https://github.com/baidi-prob/DSTT-Project-Working")
+    r_sub = p_sub.add_run(
+        "Course Project for Data Science Tools and Techniques (DSTT) | Fall 2026\n"
+        "GitHub Repository: https://github.com/baidi-prob/DSTT-Project-Working"
+    )
     r_sub.font.name = "Times New Roman"
     r_sub.font.size = Pt(9.5)
     r_sub.font.italic = True
@@ -114,231 +145,393 @@ def main():
 
     doc.add_paragraph().paragraph_format.space_after = Pt(10)
 
-    # Abstract Box
+    # Abstract
     p_abs = doc.add_paragraph()
-    p_abs.paragraph_format.space_after = Pt(12)
+    p_abs.paragraph_format.space_after = Pt(10)
     r_absh = p_abs.add_run("Abstract— ")
     r_absh.font.bold = True
     r_absh.font.italic = True
     r_absh.font.name = "Times New Roman"
     r_absh.font.size = Pt(9.5)
     r_abst = p_abs.add_run(
-        "Meteorological time-series forecasting is critical for agricultural scheduling, municipal hazard management, and renewable energy dispatch. "
-        "However, raw environmental sensor telemetry is frequently corrupted by irregular sampling intervals, transmission dropout bursts, instrument recalibration resets, and severe diurnal non-linearities. "
-        "Standard data science practice relies heavily on manual, ad-hoc exploratory notebook scripts, utilizing bidirectional linear interpolation and heuristic feature engineering. "
-        "This manual paradigm introduces severe future data leakage, lacks reproducible testing, and collapses under production distribution shifts. "
-        "This paper introduces WeatherPipe, a domain-aware, strictly causal automated preprocessing and feature engineering pipeline integrated with an MLOps Continuous Integration and Continuous Deployment (CI/CD) framework. "
-        "WeatherPipe incorporates: (1) automated temporal sequence alignment and deduplication to a regular hourly grid; (2) thermodynamic boundary enforcement and isolated instrument spike filtering; "
-        "(3) a domain-aware causal diurnal imputer combining seasonal diurnal climatology with decaying anomaly persistence without peeking into future data; (4) circular wind direction decomposition (sin/cos); "
-        "(5) multi-scale causal lags, backward rolling statistics, cyclical encodings, and thermodynamic interaction metrics (Magnus-Tetens dew point and pressure tendency); and (6) automated collinearity pruning. "
-        "Evaluated on 45,253 real-world hourly observations across four expanding temporal folds for 6-hour ahead temperature forecasting (T_{t+6}), WeatherPipe achieves an overall RMSE of 1.7776°C (R² = 0.9000), representing a 15.90% error reduction over an expert manual analyst baseline (2.1136°C) and a 60.58% reduction over a naive baseline (4.5095°C). "
-        "A feature ablation study validates that combining multi-scale temporal dynamics with thermodynamic interactions provides synergistic predictive power. "
-        "In controlled ground-truth masking benchmarks, WeatherPipe's causal imputer reduces 24-hour blackout error to 2.4928°C RMSE compared to 4.8859°C for forward-fill and 4.8688°C for non-causal linear interpolation. "
-        "The system is validated by 11 automated unit and mathematical leakage tests, and governed by a production GitHub Actions CI/CD accuracy gate."
+        "When working with real-world weather station data, most of the time goes into cleaning messy records rather than training the actual model. "
+        "Sensor logs almost always have missing hours, sudden hardware spikes, broken error codes like -999, and unit mismatches. "
+        "In normal practice, people handle these steps manually inside a Jupyter notebook by running simple forward-fill or linear interpolation, adding a couple of lag columns by hand, and training a model. "
+        "While that works for a one-time assignment, it breaks down when new data arrives every week, and methods like linear interpolation actually leak future values into past rows. "
+        "In this project, we built WeatherPipe, an automated preprocessing and feature engineering pipeline connected to a full GitHub Actions CI/CD workflow. "
+        "Instead of manual notebook edits, our pipeline automatically aligns timestamps to a regular hourly grid, filters out physical sensor glitches, converts wind direction into sine and cosine components, "
+        "and fills missing gaps using only past data by combining historical hourly averages with recent temperature trends. "
+        "It also generates multi-scale lags, rolling window statistics, dew point, and pressure changes over time, while dropping duplicate correlated features. "
+        "We tested our setup on 45,253 hourly records from San Francisco (2012–2017) using 4 time-ordered cross-validation folds to predict temperature 6 hours ahead (T_{t+6}) with XGBoost. "
+        "Our automated pipeline brought the overall RMSE down to 1.7776°C (R² = 0.9000), compared to 2.1136°C for a careful manual analyst baseline (a 15.90% improvement) and 4.5095°C for a basic mean-fill baseline. "
+        "We also tested our gap-filling method by hiding real data for up to 24 hours at a time, where our approach reached 2.4928°C RMSE compared to 4.8859°C for forward-fill. "
+        "Finally, we added 11 automated pytest checks—including a test that proves no future data leaks into past features—and an accuracy gate that stops the CI/CD build if a new update performs worse than the baseline."
     )
     r_abst.font.name = "Times New Roman"
     r_abst.font.size = Pt(9.5)
 
     # Keywords
     p_kw = doc.add_paragraph()
-    p_kw.paragraph_format.space_after = Pt(14)
+    p_kw.paragraph_format.space_after = Pt(12)
     r_kwh = p_kw.add_run("Keywords— ")
     r_kwh.font.bold = True
     r_kwh.font.italic = True
     r_kwh.font.name = "Times New Roman"
     r_kwh.font.size = Pt(9.5)
-    r_kwt = p_kw.add_run("Automated Feature Engineering, Meteorological Time-Series, Causal Imputation, CI/CD, MLOps, Data Leakage Prevention, XGBoost.")
+    r_kwt = p_kw.add_run(
+        "Weather Forecasting, Data Preprocessing, Feature Engineering, CI/CD Pipeline, Missing Data Imputation, Time-Series Leakage, XGBoost."
+    )
     r_kwt.font.name = "Times New Roman"
     r_kwt.font.size = Pt(9.5)
 
     # I. Introduction
     add_heading_1(doc, "I. INTRODUCTION")
-    add_body_p(doc,
-        "Surface weather observations collected via environmental sensor networks serve as the primary operational inputs for short-term atmospheric forecasting, "
-        "agricultural planning, renewable energy load balancing, and municipal hazard prevention. In applied settings, model predictive accuracy is strictly bounded by "
-        "the structural fidelity, quality, and temporal causality of upstream data engineering."
+    add_body_p(
+        doc,
+        "Weather forecasting models depend heavily on how clean the input data is. Whether the goal is predicting local temperature for agriculture, "
+        "managing power grid loads, or tracking storms, raw weather station logs are rarely ready to be fed straight into a machine learning model [1]. "
+        "If you open a raw CSV file from a weather station, you immediately run into missing timestamps, duplicate readings in the same hour, impossible numbers when a sensor resets, and temperature recorded in Kelvin instead of Celsius.",
     )
-    add_heading_2(doc, "A. The Fragility of Manual Preprocessing")
-    add_body_p(doc,
-        "Despite significant advances in model architectures, data preprocessing in applied meteorological projects remains predominantly manual, subjective, and ad-hoc. "
-        "Practitioners routinely rely on interactive notebooks, introducing three fatal vulnerabilities:\n"
-        "1. Future Data Leakage via Bidirectional Interpolation: Linear interpolation connects observations at t-1 and t+k to impute t. While visually smooth, it peeks into the future, which is physically impossible in live operational forecasting.\n"
-        "2. Euclidean Discontinuities in Circular Variables: Wind direction is recorded in degrees [0°, 360°). Treating wind linearly treats 359° and 1° as 358 units apart rather than 2° apart.\n"
-        "3. Absence of Automated Verification: Ad-hoc notebooks lack regression testing, unit assertions, and performance gates, leading to silent model degradation in production."
+    add_heading_2(doc, "A. Why the Usual Manual Workflow is a Problem")
+    add_body_p(
+        doc,
+        "In most student projects and even many practical workflows, data preprocessing is done manually. Someone opens a notebook, looks at a few plots, and writes quick fixes. "
+        "After reviewing how weather time-series data is usually prepared, we noticed three main problems with doing this by hand:\n"
+        "1. Future Data Leakage During Imputation: When there is a gap in temperature readings, the most common quick fix in pandas is df.interpolate(method='linear'). "
+        "On a graph, this looks great because it draws a straight line between the point before the gap (t-1) and the point after the gap (t+k). "
+        "The problem is that in a real forecasting setup, you are standing at time t trying to predict the future—you do not have the reading at t+k yet. "
+        "Using linear interpolation during preprocessing lets the model peek at future weather trends, which gives fake high accuracy during testing that disappears in real use.\n"
+        "2. Treating Wind Direction Like a Normal Number: Wind direction is measured in degrees from 0° to 360°. If the wind shifts slightly from 359° to 1°, it barely moved at all. "
+        "But if you pass that raw column into a regression tree or neural network, the model sees a huge jump of 358 units. Without converting angles properly, the model learns the wrong splits.\n"
+        "3. No Automation When New Data Arrives: A manual notebook is static. If next week's or next month's weather log comes in with a broken sensor column or a shift in weather patterns, "
+        "someone has to manually re-run all the cells and check if the model is still accurate. There are no unit tests to catch bugs and no automated checks to block a bad model from being deployed.",
     )
-    add_heading_2(doc, "B. Research Contributions")
-    add_body_p(doc,
-        "To resolve these bottlenecks, we architect, implement, and validate WeatherPipe. The system guarantees strict temporal causality (observations <= t only), "
-        "introduces a domain-aware diurnal imputer, conducts 4-fold expanding temporal cross-validation on 45,253 records, and integrates a production GitHub Actions CI/CD accuracy gate."
-    )
-
-    # II. Related Work
-    add_heading_1(doc, "II. RELATED WORK & THEORETICAL POSITIONING")
-    add_body_p(doc,
-        "The design of WeatherPipe is grounded in foundational literature across automated feature engineering and climate modeling:\n"
-        "• Murray et al. (ELATE, 2025) explored LLM-assisted code generation for time-series features but suffer from high computational token latency and non-deterministic execution.\n"
-        "• Malarkkan et al. (CAFE, 2026) utilized reinforcement learning for causal feature generation under distribution shifts.\n"
-        "• Guillaume-Castel, Li, and Sobolowski (2026) emphasized strict chronological train/test splitting, training-only parameter fitting, and reference persistence baselines in atmospheric modeling.\n"
-        "• Kanter & Veeramachaneni (DFS, 2015) introduced Deep Feature Synthesis for automated relational features, though combinatorial expansion causes collinearity.\n"
-        "• Noboa et al. (2024) demonstrated that isolating feature groups (precipitation, elevation, hydrometric gauges) reveals drivers of model generalization. We adopt their structured ablation methodology.\n"
-        "• Banerjee et al. (2018) showed automated feature extraction matches months of manual engineering in days while retaining interpretability compared to black-box PCA."
-    )
-
-    # III. System Architecture
-    add_heading_1(doc, "III. SYSTEM ARCHITECTURE & METHODOLOGY")
-    add_body_p(doc,
-        "WeatherPipe executes a sequential, deterministic pipeline designed for reproducibility, operational safety, and zero future leakage."
+    add_heading_2(doc, "B. What We Built in This Project")
+    add_body_p(
+        doc,
+        "Our goal in this project was simple: take all these manual preprocessing and feature engineering steps and turn them into a clean, repeatable, automated CI/CD pipeline that actually beats the manual approach in a fair test:\n"
+        "• Causal Preprocessing: Every cleaning and gap-filling step at hour t only uses data from hour t or earlier. Nothing from the future is ever touched.\n"
+        "• Daily-Cycle Gap Filling: We wrote an imputer that learns the normal temperature for each month and hour of the day from the training set, and blends that with how warm or cold the weather was just before the sensor went down.\n"
+        "• Fair Comparison on Real Data: We ran both the manual baselines and our automated pipeline on the exact same XGBoost model and the exact same 4 time-ordered test splits across 45,253 hours of real weather data.\n"
+        "• Complete CI/CD Automation: We connected the repo to GitHub Actions so every code push or new data batch runs linter checks, 11 unit and leakage tests, and an accuracy gate that fails the build if our pipeline's error goes above the manual baseline.",
     )
 
-    # Embed Fig 1 Architecture
+    # II. Literature Review
+    add_heading_1(doc, "II. LITERATURE REVIEW AND RESEARCH GAP")
+    add_body_p(
+        doc,
+        "Before building our pipeline, we reviewed several papers that we also discussed in our project proposal and defense slides. Table I shows how these papers connect to our work and what gaps we found.",
+    )
+
+    lit_data = [
+        ["Paper", "What They Did", "Dataset Used", "What We Took From It", "Gap We Address"],
+        [
+            "Murray et al. (ELATE, 2025) [2]",
+            "Used LLMs to write feature engineering code for time series.",
+            "Financial and industrial time-series benchmarks.",
+            "Walk-forward validation with XGBoost to measure real gains.",
+            "Needs heavy LLM API calls; overkill for a fast local weather pipeline.",
+        ],
+        [
+            "Malarkkan et al. (CAFE, 2026) [3]",
+            "Used RL to pick features that survive distribution shifts.",
+            "Standard tabular ML benchmarks.",
+            "Checking how features hold up when data patterns shift over time.",
+            "Slow RL training loops; not designed for hourly weather station gaps.",
+        ],
+        [
+            "Guillaume-Castel et al. (2026) [4]",
+            "Checked if neural nets learn physical storm patterns using LRP.",
+            "ERA5 spatial climate grids.",
+            "Strict chronological splits, fitting stats on train only, persistence baseline.",
+            "Built for 2D satellite grids rather than single-station CSV logs.",
+        ],
+        [
+            "Kanter & Veeramachaneni (DFS, 2015) [5]",
+            "Created Deep Feature Synthesis to auto-generate features.",
+            "Multi-table relational datasets.",
+            "Rule-based generation of rolling stats and lags without manual coding.",
+            "Creates too many duplicate, highly correlated features that need pruning.",
+        ],
+        [
+            "Noboa et al. (2024) [6]",
+            "Tested feature groups with Random Forest for flood prediction.",
+            "Rain, elevation, and river data in Curitiba.",
+            "Testing feature groups one by one (ablation) to see which group helps.",
+            "Features were still prepared manually for one specific flood study.",
+        ],
+        [
+            "Banerjee et al. (2018) [7]",
+            "Automated time and frequency features for sensor signals.",
+            "Bearing vibration and blood pressure signals.",
+            "Showing automation saves months of manual work while keeping accuracy high.",
+            "Tested on mechanical/medical sensors, not weather time series.",
+        ],
+        [
+            "WeatherPipe (Our Work)",
+            "Automated causal weather cleaning, feature pipeline, and CI/CD gate.",
+            "Kaggle Hourly Weather Data (45,253 rows).",
+            "Combines group ablation, strict time splits, physical features, and pruning.",
+            "A lightweight, tested CI/CD pipeline built for station time series.",
+        ],
+    ]
+    add_styled_table(
+        doc,
+        lit_data,
+        "TABLE I. Summary of Reviewed Literature and How Our Pipeline Fits In",
+        highlight_last=True,
+    )
+
+    add_body_p(
+        doc,
+        "Looking at these papers, the gap is clear. On one side, general AutoML tools like Deep Feature Synthesis [5] or newer LLM/RL frameworks like ELATE [2] and CAFE [3] are built for general tables or require heavy compute, and they don't know basic weather rules (like how humidity and temperature combine to form dew point, or that wind direction wraps around at 360°). "
+        "On the other side, weather papers like Noboa et al. [6] and Guillaume-Castel et al. [4] use good domain rules and chronological splits, but they don't package their preprocessing into an automated, tested CI/CD system. Our project bridges both sides by putting domain-specific weather preprocessing inside a reproducible software pipeline.",
+    )
+
+    # III. Methodology
+    add_heading_1(doc, "III. HOW OUR PIPELINE WORKS (METHODOLOGY)")
+    add_body_p(
+        doc,
+        "We organized our project so that the manual baseline and our automated pipeline are tested under the exact same conditions. Fig. 1 shows the step-by-step flow of our automated system.",
+    )
+
     fig1_path = Path("paper_latex/figures/system_architecture.png")
     if fig1_path.exists():
-        doc.add_paragraph().paragraph_format.space_before = Pt(6)
-        doc.add_picture(str(fig1_path), width=Inches(6.5))
+        doc.add_paragraph().paragraph_format.space_before = Pt(4)
+        doc.add_picture(str(fig1_path), width=Inches(6.4))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_cap = p_cap.add_run("Fig. 1. End-to-End System Architecture of WeatherPipe, illustrating causal preprocessing, feature extraction, and CI/CD accuracy gate.")
+        r_cap = p_cap.add_run(
+            "Fig. 1. Step-by-step workflow of our WeatherPipe system, from raw CSV logs to cleaning, gap-filling, feature generation, and the CI/CD accuracy gate."
+        )
         r_cap.font.name = "Times New Roman"
         r_cap.font.size = Pt(8.5)
         r_cap.font.italic = True
 
-    add_heading_2(doc, "A. Ingestion, Alignment, and Physical Sanity Boundaries")
-    add_body_p(doc,
-        "Raw timestamps are rounded to the nearest integer hour (1h), deduplicated via mean pooling, and reindexed against a complete date range. "
-        "Sentinel codes (-999, 9999, pressure <= 500 hPa) and values exceeding physical thermodynamic bounds are mapped to NaN. "
-        "Isolated instrument spikes (|x_t - x_{t-1}| > 10°C and |x_t - x_{t+1}| > 10°C with context difference < 10°C) are removed."
+    add_heading_2(doc, "A. Dataset and Initial Data Audit (EDA)")
+    add_body_p(
+        doc,
+        "We used the Historical Hourly Weather Data (2012–2017) dataset from Kaggle, which has 45,253 hourly records across 36 cities in separate CSV files (temperature, humidity, pressure, wind speed, wind direction, and weather description). "
+        "Before writing the pipeline, we wrote an EDA script (src/weatherpipe/eda.py) to check what was actually wrong with the raw files:\n"
+        "• Temperature was stored in Kelvin (around 285 K), so we converted it to Celsius (T_C = T_K - 273.15).\n"
+        "• Every city had missing hours (for example, San Francisco had around 1.77% missing temperature rows, including an initial block of missing values at the start of the recording).\n"
+        "• Pressure had occasional drop-outs down to 0 hPa or below 500 hPa, which is physically impossible at ground level and happens when a barometer resets.\n"
+        "We picked San Francisco as our main station because coastal weather has tricky marine fog layers and sharp daily changes, making it a realistic test for forecasting.",
     )
 
-    add_heading_2(doc, "B. Causal Diurnal Climatological Imputation")
-    add_body_p(doc,
-        "The CausalDiurnalImputer operates strictly causally in two stages:\n"
-        "1. Training: Computes empirical diurnal climatology tables mu(month, hour) strictly on the training partition.\n"
-        "2. Inference: Imputes missing values at timestamp t occurring k hours after the last valid reading x_{t-k} via:\n"
-        "   x_hat(t) = mu(m_t, h_t) + (alpha^k) * (x_{t-k} - mu(m_{t-k}, h_{t-k}))\n"
-        "where alpha = 0.90 is the persistence decay rate. Short dropouts (k=1) retain 90% of local atmospheric inertia, while long outages (k >= 48) relax smoothly to the true diurnal climatological mean without future leakage."
+    add_heading_2(doc, "B. Step 1: Time Alignment and Cleaning")
+    add_body_p(
+        doc,
+        "In preprocessing.py, our first function (align_time_series) parses the timestamps, rounds them to the nearest hour, and averages any duplicate entries that landed in the same hour. "
+        "Then it builds a complete hourly calendar from the first timestamp to the last and reindexes the table. This is important because if 3 hours were completely missing from the CSV file, a simple shift(1) would accidentally grab a reading from 4 hours ago without realizing time was skipped.\n"
+        "Next, clean_physical_ranges replaces known error codes (-999, 9999, and pressures <= 500 hPa) with NaN. It also removes outside-the-box values (temperatures outside [-50°C, 60°C], humidity outside [0%, 100%], and wind speed above 75 m/s). "
+        "We also added a spike filter to catch single-hour hardware glitches: if a reading jumps by more than 10°C in one hour and immediately drops back the next hour while the surrounding hours are stable, we mark that single spike as NaN.",
     )
 
-    add_heading_2(doc, "C. Circular Wind Decomposition & Feature Engineering")
-    add_body_p(doc,
-        "Wind direction is decomposed into sin(2*pi*theta / 360) and cos(2*pi*theta / 360), eliminating the 0°/360° discontinuity. "
-        "Multi-scale lags (1, 2, 3, 6, 12, 24h), backward rolling statistics (3h and 24h), cyclical hour and day-of-year markers, "
-        "Magnus-Tetens dew point, dew point spread, and 3-hour pressure tendency (Delta P_{3h}) are systematically computed. "
-        "A collinearity filter drops redundant features with Pearson |r| > 0.98 on the training split."
+    add_heading_2(doc, "C. Step 2: Causal Gap Filling (Imputation)")
+    add_body_p(
+        doc,
+        "To fill missing values without peeking into the future, we built CausalDiurnalImputer. When we fit the imputer on the training split, it calculates the average value mu(m, h) for every month m in {1..12} and hour of the day h in {0..23}. "
+        "When filling a missing value at time t (which is k hours after the last known reading x_{t-k}), we take the normal seasonal average for that hour mu(m_t, h_t) and add the recent weather difference, decayed by alpha = 0.90 per hour:\n"
+        "   x_hat(t) = mu(m_t, h_t) + (0.90^k) * (x_{t-k} - mu(m_{t-k}, h_{t-k}))\n"
+        "In plain words: if only 1 hour is missing (k=1), the weather is probably still warm or cold like the hour before, so we keep 90% of that offset. "
+        "If the sensor is dead for a whole day (k=24), carrying a single number forward (like ffill) would be wrong because day turns into night. Instead, our formula smoothly fades back to the normal daily curve mu(m_t, h_t) while never looking at future rows.",
     )
 
-    # IV. Experimental Evaluation (RQ1)
-    add_heading_1(doc, "IV. EXPERIMENTAL EVALUATION & RESULTS (RQ1)")
-    add_body_p(doc,
-        "The benchmark was executed on 45,253 hourly records (2012–2017) for San Francisco on a 6-hour ahead temperature forecast task (T_{t+6}) "
-        "using XGBoost Regressor (120 estimators, max depth 6, lr 0.08) across 4 expanding temporal folds."
+    add_heading_2(doc, "D. Step 3: Circular Wind and Automated Features")
+    add_body_p(
+        doc,
+        "For wind direction theta in [0°, 360°), we convert the angle into sine and cosine before doing anything else (setting both to 0.0 when wind speed is 0). This way, 359° and 1° have almost identical coordinates.\n"
+        "Then, in features.py, our FeatureEngineer class generates four groups of features using only past data (<= t):\n"
+        "1. Lag Features: Past values at 1, 2, 3, 6, 12, and 24 hours ago for temperature, pressure, humidity, and wind speed.\n"
+        "2. Rolling Window Stats: Backward-looking 3-hour and 24-hour rolling mean and standard deviation (closed='right') to capture short-term swings and full-day averages.\n"
+        "3. Cyclical Time Features: Sine and cosine of the hour of day (0..23) and day of year (1..365.25) so the model knows 23:00 is right next to 00:00.\n"
+        "4. Physical Weather Interactions: We calculate Dew Point (T_dew) from temperature and relative humidity using the Magnus-Tetens formula, the dew point spread (T - T_dew) which tells us how close the air is to fog or rain, and the 3-hour pressure change (P_t - P_{t-3}), since a sudden pressure drop usually signals an incoming front.\n"
+        "Finally, to avoid the problem mentioned in the DFS paper [5] where too many similar features slow down training, our pipeline checks the correlation matrix on the training set and drops any feature that has more than 0.98 correlation with another feature.",
     )
 
-    # Table 1: RQ1 Summary Table
-    t1 = doc.add_table(rows=5, cols=5)
-    t1.alignment = WD_TABLE_ALIGNMENT.CENTER
-    t1_data = [
-        ["Forecasting Method", "Preprocessing & Features", "Overall RMSE (°C)", "Overall MAE (°C)", "Gain vs Analyst (%)"],
-        ["Persistence Baseline", "Predict current temperature", "5.3442", "4.2236", "—"],
-        ["Manual Baseline A (Naive)", "Global mean fill, raw columns", "4.5095", "3.4551", "—"],
-        ["Manual Baseline B (Analyst)", "Forward-fill, calendar, 1 lag, 1 roll", "2.1136", "1.5719", "—"],
-        ["WeatherPipe (Proposed)", "Causal imputer, multi-scale features", "1.7776", "1.3212", "+15.90%"],
+    # IV. Experiments and Results
+    add_heading_1(doc, "IV. EXPERIMENTS AND RESULTS")
+    add_body_p(
+        doc,
+        "We set our forecasting task to predicting temperature 6 hours ahead (y_t = T_{t+6}). To keep the comparison completely fair, we used the exact same XGBoost Regressor (n_estimators=120, max_depth=6, learning_rate=0.08, subsample=0.85) across all methods. "
+        "Instead of a random train_test_split, we used 4 expanding-window time folds: we train on the earliest 45% of the timeline and test on the next block, then expand the training window forward and test on the next block, repeating 4 times.\n"
+        "We compared four setups:\n"
+        "• Persistence Baseline: Simply predicts the temperature 6 hours from now will be the exact same as right now (y_hat = T_t).\n"
+        "• Manual Baseline A (Naive): Replaces error codes with NaN, fills missing values with the overall column mean, and trains on the raw columns.\n"
+        "• Manual Baseline B (Careful Analyst): What a good student or analyst would write in a notebook—forward-fill (ffill), raw hour and month columns, 1 lag (t-1), and a 6-hour rolling mean.\n"
+        "• WeatherPipe (Our Automated Pipeline): Our full causal cleaning, diurnal gap-filling, circular wind, multi-scale features, and correlation pruning.",
+    )
+
+    add_heading_2(doc, "A. RQ1: Does the Automated Pipeline Beat Manual Preprocessing?")
+    rq1_data = [
+        ["Method", "RMSE (°C)", "MAE (°C)", "R²", "Gain vs. Analyst"],
+        ["Persistence (Sanity Check)", "5.3442", "4.2236", "0.0961", "—"],
+        ["Manual Baseline A (Naive)", "4.5095", "3.4551", "0.3564", "—"],
+        ["Manual Baseline B (Analyst)", "2.1136", "1.5719", "0.8586", "—"],
+        ["WeatherPipe (Ours)", "1.7776", "1.3212", "0.9000", "+15.90%"],
     ]
-    for r_idx, row in enumerate(t1_data):
-        for c_idx, val in enumerate(row):
-            cell = t1.cell(r_idx, c_idx)
-            cell.paragraphs[0].text = val
-            cell.paragraphs[0].runs[0].font.name = "Times New Roman"
-            cell.paragraphs[0].runs[0].font.size = Pt(8.5)
-            set_cell_margins(cell)
-            if r_idx == 0:
-                cell.paragraphs[0].runs[0].font.bold = True
-                set_cell_background(cell, "EEEEEE")
-            elif r_idx == 4:
-                cell.paragraphs[0].runs[0].font.bold = True
-                set_cell_background(cell, "E8F4F8")
-
-    p_t1 = doc.add_paragraph()
-    p_t1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_t1 = p_t1.add_run("TABLE I. Overall 6-Hour Forecast Performance Comparison across 4 Expanding Folds")
-    r_t1.font.name = "Times New Roman"
-    r_t1.font.size = Pt(8.5)
-    r_t1.font.italic = True
-
-    add_body_p(doc,
-        "WeatherPipe achieves an overall RMSE of 1.7776°C (R² = 0.9000), outperforming the expert analyst baseline (2.1136°C) by 15.90% and the naive baseline by 60.58%. "
-        "A 1,000-iteration bootstrap confidence interval for RMSE improvement is [+0.2984°C, +0.3736°C] (p < 0.001), confirming statistical significance."
+    add_styled_table(
+        doc,
+        rq1_data,
+        "TABLE II. Overall 6-Hour Temperature Forecast Results (T_{t+6})",
+        highlight_last=True,
     )
 
-    # Embed Fig 2 RQ1 RMSE
     fig2_path = Path("paper_latex/figures/rq1_rmse_comparison.png")
     if fig2_path.exists():
-        doc.add_paragraph().paragraph_format.space_before = Pt(6)
-        doc.add_picture(str(fig2_path), width=Inches(4.5))
+        doc.add_paragraph().paragraph_format.space_before = Pt(4)
+        doc.add_picture(str(fig2_path), width=Inches(4.3))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_cap = p_cap.add_run("Fig. 2. 6-Hour forecast RMSE across baselines and the automated pipeline.")
+        r_cap = p_cap.add_run(
+            "Fig. 2. Comparison of 6-hour temperature forecast error (RMSE) across baselines and our automated pipeline."
+        )
         r_cap.font.name = "Times New Roman"
         r_cap.font.size = Pt(8.5)
         r_cap.font.italic = True
 
-    # V. Feature Ablation Study
-    add_heading_1(doc, "V. FEATURE FAMILY ABLATION STUDY")
-    add_body_p(doc,
-        "Following Noboa et al. (2024), we isolated feature families to assess predictive contributions. "
-        "While multi-scale lags provide the strongest individual signal (3.0838°C), combining lags, rolling statistics, cyclical encodings, and thermodynamic interactions achieves the dominant RMSE of 1.9502°C."
+    add_body_p(
+        doc,
+        "As shown in Table II, the naive baseline gets an RMSE of 4.5095°C, which is barely better than just guessing the current temperature (5.3442°C). "
+        "The stronger analyst baseline brings the error down to 2.1136°C (R² = 0.8586). Our automated pipeline pushes the RMSE down further to 1.7776°C and reaches an R² of 0.9000, beating the best manual workflow by 15.90%.",
     )
 
-    # Embed Fig 3 Ablation
+    folds_data = [
+        ["Fold", "Train / Test Rows", "Naive (°C)", "Analyst (°C)", "Ours (°C)", "Improvement"],
+        ["Fold 1", "20,363 / 6,222", "4.2792", "1.9547", "1.7038", "+12.84%"],
+        ["Fold 2", "26,585 / 6,222", "4.4824", "2.0900", "1.7250", "+17.46%"],
+        ["Fold 3", "32,807 / 6,222", "4.3498", "2.0965", "1.7346", "+17.26%"],
+        ["Fold 4", "39,029 / 6,224", "4.6466", "3.2158", "1.9593", "+39.07%"],
+    ]
+    add_styled_table(
+        doc,
+        folds_data,
+        "TABLE III. RMSE Breakdown Across Each of the 4 Time-Ordered Folds",
+        highlight_last=False,
+    )
+
+    add_body_p(
+        doc,
+        "Looking at the fold-by-fold numbers in Table III, our pipeline won every single fold. Fold 4 is especially interesting: during that time period, weather patterns shifted more sharply, and the manual analyst baseline struggled, jumping up to 3.2158°C RMSE. "
+        "Because our pipeline had full 24-hour lags, cyclical day-of-year markers, and pressure tendencies, it stayed steady at 1.9593°C—a 39.07% improvement on that fold. "
+        "We also ran a 1,000-sample bootstrap test on the error difference (RMSE_analyst - RMSE_ours), which gave a 95% confidence interval of [+0.2984°C, +0.3736°C]. Since zero is nowhere near that range, the improvement is consistent and real.",
+    )
+
+    add_heading_2(doc, "B. Which Features Actually Helped? (Ablation Study)")
+    add_body_p(
+        doc,
+        "Inspired by Noboa et al. [6], we wanted to see which feature group was doing the heavy lifting. We trained the model using each feature group by itself and then all of them together. Table IV and Fig. 3 show what happened.",
+    )
+
+    ablation_data = [
+        ["Feature Group", "Features", "RMSE (°C)", "MAE (°C)", "R²"],
+        ["Physical Interactions Only", "3", "5.1360", "3.9410", "0.0144"],
+        ["Rolling Stats Only", "6", "3.9593", "3.0952", "0.4137"],
+        ["Cyclical Time Only", "6", "3.4482", "2.5460", "0.5553"],
+        ["Lag Features Only", "17", "3.0838", "2.2301", "0.6451"],
+        ["All Groups Combined (Ours)", "37", "1.9502", "1.4630", "0.8581"],
+    ]
+    add_styled_table(
+        doc,
+        ablation_data,
+        "TABLE IV. Feature Group Ablation Study on the Test Split",
+        highlight_last=True,
+    )
+
     fig3_path = Path("paper_latex/figures/rq1_ablation_study.png")
     if fig3_path.exists():
-        doc.add_paragraph().paragraph_format.space_before = Pt(6)
-        doc.add_picture(str(fig3_path), width=Inches(5.0))
+        doc.add_paragraph().paragraph_format.space_before = Pt(4)
+        doc.add_picture(str(fig3_path), width=Inches(4.8))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_cap = p_cap.add_run("Fig. 3. Feature group ablation study showing predictive RMSE across isolated feature families versus WeatherPipe.")
+        r_cap = p_cap.add_run(
+            "Fig. 3. Ablation results showing what happens when we train on only one feature group at a time versus combining them all."
+        )
         r_cap.font.name = "Times New Roman"
         r_cap.font.size = Pt(8.5)
         r_cap.font.italic = True
 
-    # VI. Imputation Benchmark (RQ2)
-    add_heading_1(doc, "VI. MISSING DATA IMPUTATION BENCHMARK (RQ2)")
-    add_body_p(doc,
-        "Known ground-truth values were artificially masked under 10%–20% random dropouts and 3h–24h burst blackouts. "
-        "On 24-hour sensor outages, forward-fill gives 4.8859°C RMSE and linear interpolation gives 4.8688°C RMSE. "
-        "WeatherPipe's causal diurnal imputer achieves 2.4928°C RMSE (a 49.0% improvement over forward-fill) while being strictly causal and deployable on live data."
+    add_body_p(
+        doc,
+        "By themselves, physical features (dew point and pressure change) cannot predict future temperature (5.1360°C RMSE) because they don't tell the model what time of day it is. "
+        "Lags alone do the best among single groups (3.0838°C), and cyclical time features alone get 3.4482°C. However, when we combine all four groups together, the error drops all the way to 1.9502°C. "
+        "This makes physical sense: the model needs lags to know recent temperatures, cyclical features to know if the sun is coming up or going down, and pressure/dew point to spot weather changes.",
     )
 
-    # Embed Fig 4 RQ2 Imputation
+    add_heading_2(doc, "C. RQ2: How Well Does Our Imputer Fill Missing Gaps?")
+    add_body_p(
+        doc,
+        "In real data, when a value is missing, you don't know what the true reading was. So to test RQ2 properly, we took clean sections of the test data, hid real values on purpose, filled them using different methods, and measured the error against the true hidden numbers. "
+        "We tested both random 10%–20% dropouts and long multi-hour station blackouts (3, 6, 12, and 24 hours in a row). Table V and Fig. 4 show the results.",
+    )
+
+    rq2_data = [
+        ["Missing Data Pattern", "Mean Fill", "Forward Fill", "Linear Interp.*", "Ours (Causal)"],
+        ["Random 10% Missing", "6.2102 (-1.82)", "1.5004 (+0.04)", "0.6377 (-0.02)*", "0.9931 (-0.06)"],
+        ["6-Hour Station Outage", "5.8019 (-2.04)", "3.6669 (-0.78)", "1.3913 (-0.12)*", "1.8000 (-0.38)"],
+        ["12-Hour Station Outage", "5.8076 (-2.18)", "5.1487 (-0.92)", "3.0625 (-0.52)*", "2.4253 (-0.54)"],
+        ["24-Hour Station Outage", "5.4459 (-1.87)", "4.8859 (-0.61)", "4.8688 (-0.36)*", "2.4928 (-0.40)"],
+    ]
+    add_styled_table(
+        doc,
+        rq2_data,
+        "TABLE V. Imputation Error (RMSE in °C) and Bias (MBE) on Hidden Real Values (*Linear interpolation leaks future data)",
+        highlight_last=False,
+    )
+
     fig4_path = Path("paper_latex/figures/rq2_imputation_rmse.png")
     if fig4_path.exists():
-        doc.add_paragraph().paragraph_format.space_before = Pt(6)
-        doc.add_picture(str(fig4_path), width=Inches(5.0))
+        doc.add_paragraph().paragraph_format.space_before = Pt(4)
+        doc.add_picture(str(fig4_path), width=Inches(4.8))
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r_cap = p_cap.add_run("Fig. 4. Imputation fidelity benchmark under burst sensor outages across different gap durations.")
+        r_cap = p_cap.add_run(
+            "Fig. 4. Imputation error (RMSE) when sensors go down for 3, 6, 12, and 24 hours in a row."
+        )
         r_cap.font.name = "Times New Roman"
         r_cap.font.size = Pt(8.5)
         r_cap.font.italic = True
 
-    # VII. Production CI/CD
-    add_heading_1(doc, "VII. PRODUCTION CI/CD & CONTINUOUS MLOPS MONITORING")
-    add_body_p(doc,
-        "WeatherPipe includes: (1) 11 automated unit and leakage tests, notably test_leakage.py which mutates future data (55°C heatwave) and verifies past features remain bit-for-bit identical; "
-        "(2) an automated CI/CD accuracy gate asserting RMSE_auto < RMSE_manual; and (3) streaming weekly replay with Kolmogorov-Smirnov drift detection, successfully quarantining corrupted batches."
+    add_body_p(
+        doc,
+        "The results in Table V highlight a really important practical point:\n"
+        "• Mean fill is terrible: It has huge error (>5.4°C) and introduces a strong negative bias (around -2°C).\n"
+        "• Forward-fill breaks on long gaps: For a 1-hour random drop, ffill is fine (1.50°C). But when a sensor goes down for 12 or 24 hours, ffill just repeats the last temperature flat across day and night, causing its error to shoot up to 5.15°C and 4.89°C.\n"
+        "• Linear interpolation fails on 24-hour gaps (and leaks future data): On short gaps, linear interpolation has low error ONLY because it cheats by looking at the future reading after the gap ends. Yet on a 24-hour outage (say, from noon today to noon tomorrow), drawing a straight line between two noon readings completely misses the cold night in between, giving 4.87°C RMSE!\n"
+        "• Our Causal Diurnal Imputer wins on real outages: On 12-hour and 24-hour blackouts, our method gets 2.4253°C and 2.4928°C RMSE—cutting the error of forward-fill and linear interpolation in half, while only using past data.",
     )
 
-    # VIII. Threats to Validity
-    add_heading_1(doc, "VIII. THREATS TO VALIDITY & LIMITATIONS")
-    add_body_p(doc,
-        "1. Point-Station Observations: The pipeline targets localized surface station telemetry rather than 2D spatial reanalysis grids (e.g. ERA5).\n"
-        "2. Precipitation Proxy: Precipitation depth (mm) was absent in the raw Kaggle dataset, necessitating reliance on atmospheric proxy variables (humidity, pressure tendency, dew point spread)."
+    # V. CI/CD Automation
+    add_heading_1(doc, "V. CI/CD AUTOMATION AND CONTINUOUS PIPELINE")
+    add_body_p(
+        doc,
+        "A major part of our project was making sure this isn't just a static script, but a complete automated CI/CD pipeline. We set up two GitHub Actions workflows in .github/workflows/:\n"
+        "1. Automated Testing and Leakage Check (ci.yml): Every time code is pushed to main or dev, GitHub Actions runs ruff to check code formatting and runs pytest on our 11 unit tests. "
+        "Most importantly, test_leakage.py runs our pipeline up to time T, then changes all future temperatures after time T to an extreme 55°C heatwave, and checks that not a single feature at or before time T changed (assert_frame_equal). This guarantees zero future leakage.\n"
+        "2. Automated Accuracy Gate (accuracy_gate.py): After running the tests, the CI pipeline runs the benchmark and checks if our automated pipeline's RMSE is strictly lower than the manual baselines. If someone changes a feature and makes the accuracy worse, the script exits with code 1 and turns the GitHub build red.\n"
+        "3. Weekly Data Replay and Drift Check (data-pipeline.yml & replay.py): To show what happens when new data arrives week by week, we built a replay simulator that feeds held-out data in 1-week batches (168 hours each). "
+        "It runs a Kolmogorov-Smirnov (KS) drift test on incoming columns. In Week 3 of our test, we injected a broken batch of 999°C sensor errors; our pipeline caught the anomaly, quarantined the bad batch, and protected the deployed model.",
     )
 
-    # IX. Conclusion
-    add_heading_1(doc, "IX. CONCLUSION")
-    add_body_p(doc,
-        "WeatherPipe demonstrates that replacing manual, ad-hoc weather preprocessing with an automated, domain-aware, CI/CD-driven pipeline yields a 15.90% forecast error reduction over expert manual practice, "
-        "cuts 24-hour sensor outage imputation error to 2.4928°C without data leakage, and provides robust operational deployment through automated safety gates."
+    # VI. Limitations and Future Work
+    add_heading_1(doc, "VI. LIMITATIONS AND FUTURE WORK")
+    add_body_p(
+        doc,
+        "To be completely honest about what our system can and cannot do:\n"
+        "• First, our pipeline works on single-station time-series logs. It does not process 2D satellite images or spatial grid maps like ERA5.\n"
+        "• Second, the Kaggle dataset we used did not have a numerical rainfall column (in mm), so we had to rely on humidity and dew point spread instead of actual precipitation numbers.\n"
+        "• In future work, we plan to connect this pipeline to a live weather API so it can pull and score daily forecasts automatically on a cloud server.",
+    )
+
+    # VII. Conclusion
+    add_heading_1(doc, "VII. CONCLUSION")
+    add_body_p(
+        doc,
+        "In this project, we showed that replacing manual, notebook-based weather preprocessing with an automated, tested CI/CD pipeline improves both forecast accuracy and reliability. "
+        "Across 45,253 hourly records, our WeatherPipe system achieved a 6-hour temperature forecast RMSE of 1.7776°C (R² = 0.9000), beating a careful manual analyst baseline by 15.90% and winning all 4 time-ordered cross-validation folds. "
+        "Our causal diurnal imputer also cut 24-hour sensor blackout errors nearly in half (2.49°C vs. 4.89°C) without peeking at future data. "
+        "With 11 automated tests, an active CI/CD accuracy gate, and weekly drift monitoring, the pipeline is reproducible and ready for real-world time-series data.",
     )
 
     # References
@@ -367,4 +560,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
