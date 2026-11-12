@@ -304,3 +304,4 @@ WeatherPipe proves that systematic, code-driven preprocessing and causal feature
 5. **J. P. Noboa, R. V. Silva, C. G. H. Bastos, and M. V. Lamar**, "Feature Engineering and Group Selection for Urban Flood Prediction under Changing Climatic Regimes," *Water Resources Management*, vol. 38, no. 12, pp. 4501–4519, Oct. 2024. DOI: 10.1007/s11269-024-03912-1.
 6. **M. Banerjee, R. Pal, and S. Ray**, "Automated Feature Extraction and Selection in Time-Domain Physiological and Mechanical Sensor Signals," *IEEE Transactions on Cybernetics*, vol. 48, no. 8, pp. 2410–2421, Aug. 2018. DOI: 10.1109/TCYB.2017.2731802.
 7. **National Centers for Environmental Information (NCEI)**, "Global Historical Climatology Network (GHCN) Daily and Hourly In Situ Archive," National Oceanic and Atmospheric Administration (NOAA), 2025. [Online]. Available: https://www.ncei.noaa.gov/products/land-based-station/
+

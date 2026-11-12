@@ -40,3 +40,4 @@
 5. **Continuous Integration & Quality Gate**:
    - Automated testing verifies schema, range, causality, and temporal leakage.
    - Accuracy gate enforces that automated pipeline RMSE must be lower than manual baseline RMSE.
+

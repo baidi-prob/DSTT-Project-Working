@@ -11,6 +11,8 @@ on:
 jobs:
   continuous-ingestion-and-drift:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
 
     steps:
     - name: Checkout Repository
@@ -26,6 +28,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install -e .
 
     - name: Execute Weekly Replay & Quality Drift Audit
       run: |

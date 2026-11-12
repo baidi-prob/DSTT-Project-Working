@@ -104,3 +104,4 @@
 ### Q6: "What did you correct in the literature references compared to the original proposal?"
 **Answer**:
 > *"In our initial project proposal, two citations (ELATE and CAFE) were listed with preliminary workshop citations from 2024/2025. During verification against published archives, we corrected ELATE to Murray, Dervovic, and Cashmore (arXiv:2508.14667, Aug 2025) and CAFE to Malarkkan, Ying, and Fu (arXiv:2602.16435, Feb 2026). We also cited the Guillaume-Castel et al. paper by its verified EGUsphere DOI (10.5194/egusphere-2026-3362) and fully aligned our experimental design with Noboa et al. (2024) and Banerjee et al. (2018)."*
+

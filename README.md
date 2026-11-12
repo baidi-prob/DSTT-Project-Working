@@ -235,3 +235,4 @@ python -m weatherpipe.replay --city "San Francisco" --weeks 4
 
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
