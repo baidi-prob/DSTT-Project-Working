@@ -1,0 +1,5 @@
+Method,RMSE,MAE,R2,Gain vs Best Manual (%)
+Persistence (Sanity Baseline),5.3442,4.2236,0.0961,-
+Manual Baseline A (Naive Mean),4.5095,3.4551,0.3564,-
+Manual Baseline B (Ad-hoc Analyst),2.1136,1.5719,0.8586,-
+Automated Pipeline (Proposed),1.7776,1.3212,0.9,15.9%

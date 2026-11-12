@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "weatherpipe"
+version = "1.0.0"
+description = "Automated Meteorological Preprocessing and Feature Engineering Pipeline"
+authors = [
+    { name = "Obaid Raja", email = "i268034@nu.edu.pk" },
+    { name = "Zoffishan Sattar", email = "i268029@nu.edu.pk" },
+    { name = "Hamza Ali", email = "i268007@nu.edu.pk" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "scikit-learn>=1.3.0",
+    "xgboost>=2.0.0",
+    "mlflow>=2.10.0",
+    "matplotlib>=3.8.0",
+    "scipy>=1.11.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501", "UP006", "UP035"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+filterwarnings = ["ignore::DeprecationWarning"]

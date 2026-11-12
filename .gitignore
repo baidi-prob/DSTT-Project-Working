@@ -1,0 +1,33 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# MLflow and experiment runs
+mlruns/
+.mlflow/
+
+# Large raw datasets (downloadable from Kaggle)
+data/raw/
+*.csv.zip
+
+# Temporary test and coverage files
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

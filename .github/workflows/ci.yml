@@ -1,0 +1,50 @@
+name: WeatherPipe CI/CD Automated Test & Accuracy Gate
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  test-and-evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Code Quality & Linting (Ruff)
+      run: |
+        ruff check src tests
+
+    - name: Run Pytest Suite (Including Temporal Leakage Verification)
+      run: |
+        pytest -v tests/
+
+    - name: Run CI Validation Experiment (RQ1)
+      run: |
+        python -m weatherpipe.experiment_rq1 --sample data/sample/weather_sample.csv --folds 3 --no-mlflow
+
+    - name: Evaluate Automated Accuracy Gate
+      run: |
+        python -m weatherpipe.accuracy_gate --results results/rq1_forecast_accuracy.csv
+
+    - name: Upload Experiment Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: experiment-results-and-plots
+        path: results/

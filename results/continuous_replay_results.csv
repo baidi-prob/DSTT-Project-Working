@@ -1,0 +1,5 @@
+Week,Batch Size (hours),Corrupted Batch Injected,Champion RMSE (°C),Champion MAE (°C),Champion R2,Temp Drift Detected,Status
+Week 1,168,False,5.1093,3.9004,0.0374,True,Processed & Scored
+Week 2,168,False,3.8441,3.0215,-0.5128,True,Processed & Scored
+Week 3,168,True,6.0929,4.9434,-0.1484,True,Corrupted Batch Quarantined
+Week 4,168,False,5.3824,4.2457,0.0017,True,Processed & Scored

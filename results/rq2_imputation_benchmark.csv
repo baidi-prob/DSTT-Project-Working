@@ -1,0 +1,25 @@
+Scenario,Imputation Method,RMSE (°C),MAE (°C),Mean Bias Error (MBE °C),Evaluated Points
+Random Dropout (10%),Global Mean Fill,6.2102,4.6729,-1.8182,1278
+Random Dropout (10%),Forward Fill (ffill),1.5004,1.0004,0.0371,1278
+Random Dropout (10%),Linear Interpolation (Non-causal),0.6377,0.407,-0.0154,1278
+Random Dropout (10%),Proposed Causal Diurnal,0.9931,0.6727,-0.0574,1278
+Random Dropout (20%),Global Mean Fill,6.088,4.562,-1.9038,2556
+Random Dropout (20%),Forward Fill (ffill),1.5696,1.0997,-0.0366,2556
+Random Dropout (20%),Linear Interpolation (Non-causal),0.6471,0.4284,0.0139,2556
+Random Dropout (20%),Proposed Causal Diurnal,0.9872,0.7207,-0.0755,2556
+Burst Outage (3h Block),Global Mean Fill,5.51,4.1042,-1.7087,45
+Burst Outage (3h Block),Forward Fill (ffill),2.0853,1.4292,-0.4492,45
+Burst Outage (3h Block),Linear Interpolation (Non-causal),0.773,0.5783,0.0053,45
+Burst Outage (3h Block),Proposed Causal Diurnal,1.0954,0.8125,-0.1587,45
+Burst Outage (6h Block),Global Mean Fill,5.8019,4.2562,-2.0384,90
+Burst Outage (6h Block),Forward Fill (ffill),3.6669,2.4245,-0.7789,90
+Burst Outage (6h Block),Linear Interpolation (Non-causal),1.3913,1.0475,-0.1248,90
+Burst Outage (6h Block),Proposed Causal Diurnal,1.8,1.2585,-0.3755,90
+Burst Outage (12h Block),Global Mean Fill,5.8076,4.4165,-2.178,180
+Burst Outage (12h Block),Forward Fill (ffill),5.1487,3.6877,-0.9185,180
+Burst Outage (12h Block),Linear Interpolation (Non-causal),3.0625,2.2674,-0.5182,180
+Burst Outage (12h Block),Proposed Causal Diurnal,2.4253,1.755,-0.5352,180
+Burst Outage (24h Block),Global Mean Fill,5.4459,4.2004,-1.8733,360
+Burst Outage (24h Block),Forward Fill (ffill),4.8859,3.582,-0.6138,360
+Burst Outage (24h Block),Linear Interpolation (Non-causal),4.8688,3.5894,-0.3628,360
+Burst Outage (24h Block),Proposed Causal Diurnal,2.4928,1.8646,-0.3963,360

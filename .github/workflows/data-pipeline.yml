@@ -1,0 +1,38 @@
+name: WeatherPipe Continuous Ingestion & Drift Monitoring
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly run every Monday at 06:00 UTC
+  push:
+    paths:
+      - 'data/incoming/**'
+  workflow_dispatch:
+
+jobs:
+  continuous-ingestion-and-drift:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Execute Weekly Replay & Quality Drift Audit
+      run: |
+        python -m weatherpipe.replay --sample data/sample/weather_sample.csv --weeks 4
+
+    - name: Upload Drift & Monitoring Reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: drift-and-replay-monitoring
+        path: results/continuous_replay_results.csv

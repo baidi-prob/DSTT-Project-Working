@@ -1,0 +1,6 @@
+Feature Group,Feature Count,RMSE,MAE,R2
+5. All Combined (Full Pipeline),37,1.9502,1.463,0.8581
+1. Lags Only,17,3.0838,2.2301,0.6451
+3. Cyclical Only,6,3.4482,2.546,0.5553
+2. Rolling Only,6,3.9593,3.0952,0.4137
+4. Physical Interactions Only,3,5.136,3.941,0.0144
