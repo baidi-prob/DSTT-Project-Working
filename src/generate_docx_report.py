@@ -1,12 +1,13 @@
 """Script to generate IEEE-style research paper in .docx format using python-docx."""
 
 from pathlib import Path
+
 import docx
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import OxmlElement, parse_xml
-from docx.oxml.ns import nsdecls, qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+from docx.shared import Inches, Pt, RGBColor
 
 
 def set_cell_background(cell, fill_hex):
@@ -152,7 +153,7 @@ def main():
 
     # I. Introduction
     add_heading_1(doc, "I. INTRODUCTION")
-    add_body_p(doc, 
+    add_body_p(doc,
         "Surface weather observations collected via environmental sensor networks serve as the primary operational inputs for short-term atmospheric forecasting, "
         "agricultural planning, renewable energy load balancing, and municipal hazard prevention. In applied settings, model predictive accuracy is strictly bounded by "
         "the structural fidelity, quality, and temporal causality of upstream data engineering."
@@ -366,3 +367,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
