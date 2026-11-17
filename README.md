@@ -16,14 +16,15 @@
 
 All unnecessary `.py` scripts and duplicate folders have been removed so the repository contains **only the pre-executed Jupyter Notebooks (`.ipynb`), the complete start-to-end `.png` and `.csv` outputs in `results/`, and the finalized IEEE Research Paper**:
 
-### 1. Pre-Executed Jupyter Notebooks (`notebooks/`)
-Every cell in these notebooks is already executed on the `45,253`-hour dataset and displays its full output (tables, logs, and plots) immediately upon opening:
+### 1. Pre-Executed Jupyter Notebooks (`WeatherPipe_Complete_Project.ipynb` & `notebooks/`)
+Every cell in these notebooks contains the **complete, real Python implementation code** and is already executed on the dataset, displaying its full output (tables, logs, and plots) immediately upon opening:
+- **[`WeatherPipe_Complete_Project.ipynb`](WeatherPipe_Complete_Project.ipynb)** *(Master All-in-One Executed Notebook in Root — All 10 Project Steps in One File)*
 1. **[`notebooks/01_exploratory_data_analysis.ipynb`](notebooks/01_exploratory_data_analysis.ipynb)** — Exploratory Data Analysis (EDA), Kelvin-to-Celsius conversion, missing data audit, and raw sensor anomaly inspection.
 2. **[`notebooks/02_manual_baseline.ipynb`](notebooks/02_manual_baseline.ipynb)** — Persistence baseline, Manual Baseline A (Naive mean-fill), Manual Baseline B (Careful Analyst), and the $0^\circ / 360^\circ$ wind discontinuity demonstration.
-3. **[`notebooks/03_automated_pipeline_comparison.ipynb`](notebooks/03_automated_pipeline_comparison.ipynb)** — Complete **WeatherPipe** automated pipeline, RQ1 4-fold forecast comparison, feature family ablation study, RQ2 sensor blackout benchmark, zero-leakage proof, and CI/CD accuracy gate.
+3. **[`notebooks/03_automated_pipeline_comparison.ipynb`](notebooks/03_automated_pipeline_comparison.ipynb)** — Complete **WeatherPipe** automated pipeline, RQ1 4-fold forecast comparison, feature family ablation study, RQ2 sensor blackout benchmark, multi-city robustness, zero-leakage proof, and CI/CD accuracy gate.
 
 ### 2. Complete Start-to-End PNG Outputs (`results/`)
-All 10 visual outputs from the start of the project (EDA) to the end (Final Scorecard & CI/CD) are saved in **[`results/`](results/)**:
+All 12 visual outputs from the start of the project (EDA) to the end (Final Scorecard, Multi-City Robustness & CI/CD) are saved in **[`results/`](results/)**:
 1. [`results/01_system_architecture.png`](results/01_system_architecture.png) — End-to-End WeatherPipe & CI/CD System Architecture
 2. [`results/02_eda_raw_data_and_anomalies.png`](results/02_eda_raw_data_and_anomalies.png) — Stage 1 (EDA): Raw Dataset Structure, Sensor Glitches & Multi-City Audit
 3. [`results/03_wind_circular_encoding_demo.png`](results/03_wind_circular_encoding_demo.png) — Stage 2A: Circular Wind Decomposition ($\sin/\cos$) Eliminating the $358^\circ$ Cliff
@@ -34,6 +35,8 @@ All 10 visual outputs from the start of the project (EDA) to the end (Final Scor
 8. [`results/08_rq2_imputation_outage_benchmark.png`](results/08_rq2_imputation_outage_benchmark.png) — Stage 2 (RQ2): Missing Data & 24-Hour Sensor Outage Imputation Benchmark
 9. [`results/09_cicd_drift_and_leakage_verification.png`](results/09_cicd_drift_and_leakage_verification.png) — Stage 4: CI/CD Automated Quality Gates, 11/11 Pytest Suite & Weekly Drift Replay
 10. [`results/10_complete_results_summary_scorecard.png`](results/10_complete_results_summary_scorecard.png) — Complete Master Scorecard of All Experimental Results (Start to End)
+11. [`results/11_feature_importance_stability_and_pca.png`](results/11_feature_importance_stability_and_pca.png) — Feature Importance Stability Across Folds (Slide 9), Random Forest & PCA Comparison
+12. [`results/12_multicity_robustness_and_mlflow_tracking.png`](results/12_multicity_robustness_and_mlflow_tracking.png) — Multi-City Climate Robustness (`135,759` Rows Across SF, Chicago, Phoenix), MLflow Log & Proposal Refinements
 
 ### 3. Finalized IEEE Conference Research Paper
 - **[`research_paper.docx`](research_paper.docx)** — Finalized IEEE 2-column conference paper in Microsoft Word format
