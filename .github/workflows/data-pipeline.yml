@@ -11,6 +11,8 @@ on:
 jobs:
   continuous-ingestion-and-drift:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
 
     steps:
     - name: Checkout Repository
@@ -20,20 +22,17 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
 
-    - name: Verify Weekly Replay & Anomaly Quarantine Audit
+    - name: Install Dependencies
       run: |
-        python -c "
-        import csv
-        with open('results/continuous_replay_results.csv', 'r', encoding='utf-8') as f:
-            rows = list(csv.DictReader(f))
-        assert len(rows) == 4, 'Expected 4 weekly replay batches'
-        wk3 = [r for r in rows if r['Week'] == 'Week 3'][0]
-        assert 'Quarantined' in wk3['Status'], 'Corrupted Week 3 batch must be quarantined'
-        for r in rows:
-            print(f\"{r['Week']}: RMSE={r['Champion RMSE (°C)']} C | Status={r['Status']}\")
-        print('Weekly Streaming Drift & Quarantine Audit Verified.')
-        "
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+
+    - name: Execute Weekly Replay & Quality Drift Audit
+      run: |
+        python -m weatherpipe.replay --sample data/sample/weather_sample.csv --weeks 4
 
     - name: Upload Drift & Monitoring Reports
       uses: actions/upload-artifact@v4

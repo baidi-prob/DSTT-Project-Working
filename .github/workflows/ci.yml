@@ -1,4 +1,4 @@
-name: WeatherPipe CI/CD Automated Notebook & Accuracy Gate
+name: WeatherPipe CI/CD Automated Test & Accuracy Gate
 
 on:
   push:
@@ -10,6 +10,8 @@ on:
 jobs:
   test-and-evaluate:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
 
     steps:
     - name: Checkout Repository
@@ -19,38 +21,29 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
 
-    - name: Validate Executed Jupyter Notebooks (.ipynb Outputs & Zero-Leakage Proof)
+    - name: Install Dependencies
       run: |
-        python -c "
-        import json, pathlib, sys
-        nbs = list(pathlib.Path('notebooks').glob('*.ipynb'))
-        assert len(nbs) == 3, f'Expected 3 notebooks, found {len(nbs)}'
-        for nb_path in sorted(nbs):
-            nb = json.loads(nb_path.read_text(encoding='utf-8'))
-            code_cells = [c for c in nb['cells'] if c['cell_type'] == 'code']
-            for idx, c in enumerate(code_cells, 1):
-                assert c.get('execution_count') is not None, f'{nb_path} cell {idx} not executed'
-                assert len(c.get('outputs', [])) > 0, f'{nb_path} cell {idx} missing output'
-            print(f'PASSED: {nb_path.name} ({len(code_cells)} executed cells with full outputs)')
-        "
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
 
-    - name: Evaluate Automated CI/CD Accuracy Gate (RQ1 & RQ2)
+    - name: Code Quality & Linting (Ruff)
       run: |
-        python -c "
-        import csv, pathlib, sys
-        with open('results/rq1_forecast_accuracy.csv', 'r', encoding='utf-8') as f:
-            rows = {r['Method']: float(r['RMSE']) for r in csv.DictReader(f)}
-        rmse_analyst = rows['Manual Baseline B (Ad-hoc Analyst)']
-        rmse_auto = rows['Automated Pipeline (Proposed)']
-        gain = (rmse_analyst - rmse_auto) / rmse_analyst * 100
-        print(f'Manual Analyst RMSE: {rmse_analyst:.4f} C | WeatherPipe RMSE: {rmse_auto:.4f} C (+{gain:.2f}% Gain)')
-        assert rmse_auto < rmse_analyst, 'Accuracy Gate Failed: Automated RMSE must beat Manual Analyst!'
-        for i in range(1, 11):
-            matches = list(pathlib.Path('results').glob(f'{i:02d}_*.png'))
-            assert len(matches) == 1, f'Missing result PNG {i:02d}'
-        print('CI/CD Accuracy Gate & All 10 Result PNGs Verified Successfully (Exit Code 0)')
-        "
+        ruff check src tests
+
+    - name: Run Pytest Suite (Including Temporal Leakage Verification)
+      run: |
+        pytest -v tests/
+
+    - name: Run CI Validation Experiment (RQ1)
+      run: |
+        python -m weatherpipe.experiment_rq1 --sample data/sample/weather_sample.csv --folds 3 --no-mlflow
+
+    - name: Evaluate Automated Accuracy Gate
+      run: |
+        python -m weatherpipe.accuracy_gate --results results/rq1_forecast_accuracy.csv
 
     - name: Upload Experiment Artifacts
       uses: actions/upload-artifact@v4
